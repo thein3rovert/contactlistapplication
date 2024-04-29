@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import {getContacts} from './api/ContactService'
+import {getContacts, saveContact, updatePhoto} from './api/ContactService'
 import Header from './components/Header';
 import ContactList from './components/ContactList';
 import { Routes,Route, Navigate } from 'react-router-dom';
@@ -36,8 +36,7 @@ function App() {
     
     }
   }
-  const toogleModal = (show) =>  show ? modalRef.current.showModal() : modalRef.current.close();
-
+  
   /**
  * Updates the values state object with the new value from the event target.
  *
@@ -46,11 +45,39 @@ function App() {
  */
 const onChange = (event) => {
     setValues({...values, [event.target.name]: event.target.value});
-    console.log(values);
   };
+
+  {/* Saving the contact */}
   const handleNewContact = async (event) => {
-    
+    event.preventDefault();
+    try {
+      const { data } = await saveContact(values)
+      const formData = new FormData();
+      formData.append('file', file, file.name);
+      formData.append('id', data.id);
+
+      const { data: photoUrl } = await updatePhoto(formData);
+      toggleModal(false);
+     
+      setFile(undefined);
+      fileRef.current.value = null;
+      setValues({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        title: '',
+        status: '',
+      })
+      getAllContacts();
+
+    } catch (error) {
+      console.log(error);
+    }
   }
+
+  const toggleModal = show =>  show ? modalRef.current.showModal() : modalRef.current.close();
+
 
   useEffect(() => {
     getAllContacts();
@@ -58,7 +85,7 @@ const onChange = (event) => {
 
   return (
     <>
-      <Header toogleModal={toogleModal} nbOfContacts={data.totalElements} />
+      <Header toogleModal={toggleModal} nbOfContacts={data.totalElements} />
       <main className='main'>
         <div className='container'>
           <Routes>
@@ -72,11 +99,11 @@ const onChange = (event) => {
         <dialog ref={modalRef} className="modal" id="modal">
         <div className="modal__header">
           <h3>New Contact</h3>
-          <i onClick={() => toogleModal(false)} className="bi bi-x-lg"></i>
+          <i onClick={() => toggleModal(false)} className="bi bi-x-lg"></i>
         </div>
         <div className="divider"></div>
         <div className="modal__body">
-          <form >
+          <form onSubmit={handleNewContact}>
             <div className="user-details">
               <div className="input-box">
                 <span className="details">Name</span>
@@ -108,7 +135,7 @@ const onChange = (event) => {
               </div>
             </div>
             <div className="form_footer">
-              <button onClick={() => toogleModal(false)} type='button' className="btn btn-danger">Cancel</button>
+              <button onClick={() => toggleModal(false)} type='button' className="btn btn-danger">Cancel</button>
               <button type='submit' className="btn">Save</button>
             </div>
           </form>

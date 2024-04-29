@@ -29,6 +29,7 @@ const Contact = ({ contact }) => {
                 <p className="contact_title"> {contact.title}</p>
             </div>
         </div>
+        
         <div className="contact__body">
             <p> <i className="bi bi-envelope"></i> {contact.email}</p>
             <p> <i className="bi bi-geo"></i> {contact.address}</p>
