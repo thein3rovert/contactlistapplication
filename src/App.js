@@ -5,6 +5,7 @@ import {getContacts, saveContact, updatePhoto} from './api/ContactService'
 import Header from './components/Header';
 import ContactList from './components/ContactList';
 import { Routes,Route, Navigate } from 'react-router-dom';
+import ContactDetail from './components/ContactDetail';
 
 function App() {
   const modalRef = useRef();
@@ -24,18 +25,26 @@ function App() {
     status: '', 
 
    })
+// This is an asynchronous function named getAllContacts. It takes two optional parameters: page and size.
+const getAllContacts = async (page = 0, size = 10) => {
+  try {
+    // The current page is set to the provided page value.
+    setCurrentPage(page);
 
-  const getAllContacts = async (page = 0, size = 10) => {
-    try{ 
-      setCurrentPage(page);
-      const {data} = await getContacts(page, size);
-      setData(data);
-      console.log(data);
-    }catch(error) {
-      console.log(error);
-    
-    }
+    // The getContacts function is called with the provided page and size values.
+    // The function is expected to return a Promise that resolves to an object with a data property.
+    const {data} = await getContacts(page, size);
+
+    // The data returned from the getContacts function is set as the state of the component using the setData function.
+    setData(data);
+
+    // The data is logged to the console for debugging purposes.
+    console.log(data);
+  } catch(error) {
+    // If an error occurs during the execution of the function, the error is logged to the console.
+    console.log(error);
   }
+}
   
   /**
  * Updates the values state object with the new value from the event target.
@@ -43,42 +52,66 @@ function App() {
  * @param {Event} event - The event object that triggered the onChange function.
  * @return {void} This function does not return a value.
  */
+// This is a function named onChange that takes an event object as a parameter.
 const onChange = (event) => {
-    setValues({...values, [event.target.name]: event.target.value});
-  };
+  // The setValues function is called to update the values state by spreading the existing values and updating the property corresponding to the name of the input field that triggered the event with the new value.
+  setValues({...values, [event.target.name]: event.target.value});
+};
+
 
   {/* Saving the contact */}
-  const handleNewContact = async (event) => {
-    event.preventDefault();
-    try {
-      const { data } = await saveContact(values)
-      const formData = new FormData();
-      formData.append('file', file, file.name);
-      formData.append('id', data.id);
+// This is an asynchronous function named handleNewContact that takes an event object as a parameter.
+const handleNewContact = async (event) => {
+  // The event's default behavior is prevented to prevent the form from submitting and reloading the page.
+  event.preventDefault();
 
-      const { data: photoUrl } = await updatePhoto(formData);
-      toggleModal(false);
-     
-      setFile(undefined);
-      fileRef.current.value = null;
-      setValues({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        title: '',
-        status: '',
-      })
-      getAllContacts();
+  try {
+    // The saveContact function is called with the current values state to save the new contact.
+    // The function is expected to return a Promise that resolves to an object with a data property.
+    const { data } = await saveContact(values);
 
-    } catch (error) {
-      console.log(error);
-    }
+    // A new FormData object is created to send the file and the contact's id to the server.
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    formData.append('id', data.id);
+
+    // The updatePhoto function is called with the formData to update the contact's photo.
+    // The function is expected to return a Promise that resolves to an object with a data property.
+    const { data: photoUrl } = await updatePhoto(formData);
+    console.log(photoUrl);
+
+    // The modal is toggled to hide it.
+    toggleModal(false);
+
+    // The file and values state are reset.
+    setFile(undefined);
+    setValues({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      title: '',
+      status: '',
+    });
+
+    // The getAllContacts function is called to refresh the list of contacts.
+    getAllContacts();
+  } catch (error) {
+    // If an error occurs during the execution of the function, the error is logged to the console.
+    console.log(error);
   }
+};
 
-  const toggleModal = show =>  show ? modalRef.current.showModal() : modalRef.current.close();
+const updateContact = async () => {};
+
+const updateImage = async () => {};
 
 
+// This is a function named toggleModal that takes a boolean parameter named show.
+const toggleModal = show => show ? modalRef.current.showModal() : modalRef.current.close();
+
+// This is a useEffect hook that runs the getAllContacts function when the component mounts.
+// The empty dependency array [] ensures that it only runs once when the component mounts.
   useEffect(() => {
     getAllContacts();
   }, []);
@@ -91,6 +124,7 @@ const onChange = (event) => {
           <Routes>
             <Route path='/' element={< Navigate to='/contacts' />} />
             <Route path="/contacts" element={<ContactList data={data} currentPage={currentPage} getAllContacts={getAllContacts} />} />
+            <Route path="/contacts/:id" element={<ContactDetail updateContact = {updateContact} updateImage= {updateImage} />} />
           </Routes>
         </div>
       </main>
