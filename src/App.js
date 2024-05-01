@@ -86,6 +86,7 @@ const handleNewContact = async (event) => {
     // The file and values state are reset.
     setFile(undefined);
     setValues({
+      id: '',
       name: '',
       email: '',
       phone: '',
@@ -102,7 +103,14 @@ const handleNewContact = async (event) => {
   }
 };
 
-const updateContact = async () => {};
+const updateContact = async (contact) => {
+  try{
+      const {data} =  await saveContact(contact);
+      console.log(data);
+  }catch (error) {
+    console.log(error);
+  }
+};
 
 // This is an asynchronous function named updateImage that takes a formData parameter.
 const updateImage = async (formData) => {

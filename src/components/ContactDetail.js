@@ -74,6 +74,11 @@ const updatePhoto = async (file) => {
     setContact({ ...contact, [event.target.name]: event.target.value });
     console.log(contact);
   };
+  const onUpdateContact = async (event) => {
+    event.preventDefault();
+    updateContact(contact);
+    fetchContact(id);
+  };
     useEffect(() => {
         fetchContact(id);
       }, [id]);
@@ -93,7 +98,7 @@ const updatePhoto = async (file) => {
         </div>
           <div className='profile__settings'>
             <div>
-              <form className="form">
+              <form onSubmit={onUpdateContact}className="form">
                 <div className="user-details">
                   <input type="hidden" defaultValue={contact.id} name="id" required />
                   <div className="input-box">
