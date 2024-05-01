@@ -104,7 +104,18 @@ const handleNewContact = async (event) => {
 
 const updateContact = async () => {};
 
-const updateImage = async () => {};
+// This is an asynchronous function named updateImage that takes a formData parameter.
+const updateImage = async (formData) => {
+  try {
+    // The updatePhoto function is called with the provided formData parameter to update the image.
+    // The function is expected to return a Promise that resolves to an object with a data property.
+    // The data property is then destructured to extract the photoUrl.
+    const { data: photoUrl } = await updatePhoto(formData);
+  } catch (error) {
+    // If an error occurs during the execution of the function, the error is logged to the console.
+    console.log(error);
+  }
+};
 
 
 // This is a function named toggleModal that takes a boolean parameter named show.
